@@ -1,0 +1,27 @@
+trigger:
+  batch: true
+  tags:
+    include:
+      - "*.*.*"
+
+# We validate PR's in a github action
+pr: none
+
+resources:
+  repositories:
+    - repository: templates
+      type: github
+      endpoint: Amsterdam
+      name: Amsterdam/common-azure-pipelines
+
+extends:
+  template: pipelines/aks/template.yaml@templates
+  parameters:
+    ${{ if startsWith(variables['Build.SourceBranch'], 'refs/tags/') }}:
+      version: $(Build.SourceBranchName)
+    ${{ else }}:
+      version: 0.0.0-$(Build.SourceBranchName)
+    build:
+      oci: true
+      producedImages:
+        - amsterdam/helm-signalen
